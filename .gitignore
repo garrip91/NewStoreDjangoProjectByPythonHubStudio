@@ -1,0 +1,11 @@
+venv/
+*.sqlite3
+__pycache__/
+__pycache__
+*.env
+config/.env
+.idea
+src/htmlcov/*
+src/.coverage
+src/run_test_command.txt
+src/static/admin/*
