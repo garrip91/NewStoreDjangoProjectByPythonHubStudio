@@ -1,4 +1,7 @@
 venv/
+.pylintrc
+.vscode
+media/
 *.sqlite3
 __pycache__/
 __pycache__
