@@ -39,6 +39,7 @@ INSTALLED_APPS: list[str] = [
     'django.contrib.staticfiles',
     
     "mainApp.apps.MainappConfig",
+    "goodsApp.apps.GoodsappConfig",
 ]
 
 MIDDLEWARE = [
