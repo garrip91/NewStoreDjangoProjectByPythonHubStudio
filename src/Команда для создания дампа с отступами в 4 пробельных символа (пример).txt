@@ -1,0 +1,1 @@
+python manage.py dumpdata goodsApp.Categories > fixtures/goodsApp/categories.json --indent=4

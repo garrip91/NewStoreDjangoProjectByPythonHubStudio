@@ -6,6 +6,7 @@ def catalog(request):
     context = {
         "title": "Home - Каталог",
         "goods": [
+            """
             {
                 'image': 'deps/images/goods/set of tea table and three chairs.jpg',
                 'name': 'Чайный столик и три стула 1',
@@ -32,19 +33,19 @@ def catalog(request):
             },
             {
                 'image': 'deps/images/goods/kitchen table 2.jpg',
-                'name': 'Кухонный стол с встройкой',
+                'name': 'Кухонный стол со встройкой',
                 'description': 'Кухонный стол со встроенной плитой и раковиной. Много полок и вообще красивый.',
                 'price': 430.00
             },
             {
                 'image': 'deps/images/goods/corner sofa.jpg',
-                'name': 'Угловой диван для гостинной',
-                'description': 'Угловой диван, раскладывается в двухспальную кровать, для гостинной и приема гостей самое то!',
+                'name': 'Угловой диван для гостиной',
+                'description': 'Угловой диван, раскладывается в двуспальную кровать, для гостиной и приёма гостей самое то!',
                 'price': 610.00
             },
             {
                 'image': 'deps/images/goods/bedside table.jpg',
-                'name': 'Прикроватный столик',
+                'name': 'Прикроватный столик 1',
                 'description': 'Прикроватный столик с двумя выдвижными ящиками (цветок не входит в комплект).',
                 'price': 55.00
             },
@@ -74,10 +75,11 @@ def catalog(request):
             },
             {
                 'image': 'deps/images/goods/strange table.jpg',
-                'name': 'Прикроватный столик',
+                'name': 'Прикроватный столик 2',
                 'description': 'Столик, довольно странный на вид, но подходит для размещения рядом с кроватью.',
                 'price': 25.00
             },
+            """
         ]
     }
     
