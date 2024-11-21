@@ -37,6 +37,7 @@ INSTALLED_APPS: list[str] = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.postgres",
     
     "debug_toolbar",
     
@@ -89,9 +90,9 @@ WSGI_APPLICATION = 'AppProject.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "",
+        "NAME": "newstoredjangoprojectbypythonhubstudio",
+        "USER": "mhitaryan",
+        "PASSWORD": "LOW02yaz",
         "HOST": "localhost",
         "PORT": "5432",
     }
