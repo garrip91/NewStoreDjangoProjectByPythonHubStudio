@@ -43,6 +43,7 @@ INSTALLED_APPS: list[str] = [
     
     "mainApp.apps.MainappConfig",
     "goodsApp.apps.GoodsappConfig",
+    "usersApp.apps.UsersappConfig",
 ]
 
 MIDDLEWARE = [

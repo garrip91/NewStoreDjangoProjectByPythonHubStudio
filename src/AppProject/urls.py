@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("mainApp.urls", namespace="mainApp")),
     path("catalog/", include("goodsApp.urls", namespace="catalog")),
+    path("user/", include("usersApp.urls", namespace="user")),
 ]
 
 if DEBUG:
