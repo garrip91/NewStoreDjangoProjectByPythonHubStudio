@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
-from .forms import UserLoginForm, UserRegistrationForm
+from .forms import UserLoginForm, UserRegistrationForm, ProfileForm
 
 
 def login(request):
@@ -48,15 +49,26 @@ def registration(request):
     return render(request, "usersApp/registration.html", context=context)
 
 
+@login_required
 def profile(request):
+    
+    if request.method == "POST":
+        form = ProfileForm(data=request.POST, instance=request.user, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("user:profile"))
+    else:
+        form = ProfileForm(instance=request.user)
     
     context = {
         "title": "Home - Кабинет",
+        "form": form,
     }
     
     return render(request, "usersApp/profile.html", context=context)
 
 
+@login_required
 def logout(request):
     
     auth.logout(request)
