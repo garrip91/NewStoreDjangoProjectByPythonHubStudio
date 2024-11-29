@@ -1,0 +1,13 @@
+00:00 Обзор на некие исправления багов
+02:47 Почему классы представления лучше чем функции в Django
+06:39 TemplateView
+14:02 DetailView
+25:22 ListView
+42:00 LoginView
+58:30 CreateView
+01:05:59 UpdateView
+01:08:08 LoginRequiredMixin
+01:16:10 LogOutView
+01:18:18 View
+01:25:12 Кастомные Mixins
+01:35:21 FormView

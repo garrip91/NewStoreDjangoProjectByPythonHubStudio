@@ -75,6 +75,11 @@ def profile(request):
     return render(request, "usersApp/profile.html", context=context)
 
 
+def users_cart(request):
+    
+    return render(request, "usersApp/users_cart.html")
+
+
 @login_required
 def logout(request):
     
