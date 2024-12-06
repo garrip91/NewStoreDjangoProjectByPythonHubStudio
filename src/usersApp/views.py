@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
 from .forms import UserLoginForm, UserRegistrationForm, ProfileForm
+from cartsApp.models import Cart
 
 
 def login(request):
@@ -15,9 +16,15 @@ def login(request):
             username = request.POST["username"]
             password = request.POST["password"]
             user = auth.authenticate(username=username, password=password)
+            
+            session_key = request.session.session_key
+            
             if user:
                 auth.login(request, user)
                 messages.success(request, f"{username}, Вы вошли в свой аккаунт!")
+                
+                if session_key:
+                    Cart.objects.filter(session_key=session_key).update(user=user)
                 
                 redirect_page = request.POST.get("next", None)
                 if redirect_page and redirect_page != reverse("usersApp:logout"):
@@ -41,8 +48,15 @@ def registration(request):
         form = UserRegistrationForm(data=request.POST)
         if form.is_valid():
             form.save()
+            
+            session_key = request.session.session_key
+            
             user = form.instance
             auth.login(request, user)
+            
+            if session_key:
+                Cart.objects.filter(session_key=session_key).update(user=user)
+            
             messages.success(request, f"{user.username}, Вы зарегистрированы и вошли в свой аккаунт!")
             return HttpResponseRedirect(reverse("mainApp:index"))
     else:
