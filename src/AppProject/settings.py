@@ -45,6 +45,7 @@ INSTALLED_APPS: list[str] = [
     "goodsApp.apps.GoodsappConfig",
     "usersApp.apps.UsersappConfig",
     "cartsApp.apps.CartsappConfig",
+    "ordersApp.apps.OrdersappConfig"
 ]
 
 MIDDLEWARE = [

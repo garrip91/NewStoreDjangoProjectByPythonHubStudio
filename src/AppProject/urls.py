@@ -27,6 +27,7 @@ urlpatterns = [
     path("catalog/", include("goodsApp.urls", namespace="catalog")),
     path("user/", include("usersApp.urls", namespace="user")),
     path("cart/", include("cartsApp.urls", namespace="cart")),
+    path("orders/", include("ordersApp.urls", namespace="orders")),
 ]
 
 if DEBUG:
