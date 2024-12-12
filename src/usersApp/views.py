@@ -3,9 +3,11 @@ from django.contrib import auth, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 
 from .forms import UserLoginForm, UserRegistrationForm, ProfileForm
 from cartsApp.models import Cart
+from ordersApp.models import Order, OrderItem
 
 
 def login(request):
@@ -82,9 +84,20 @@ def profile(request):
     else:
         form = ProfileForm(instance=request.user)
     
+    orders = (
+        Order.objects.filter(user=request.user).prefetch_related(
+            Prefetch(
+                "orderitem_set",
+                queryset=OrderItem.objects.select_related("product"),
+            )
+        )
+        .order_by("-id")
+    )
+    
     context = {
         "title": "Home - Кабинет",
         "form": form,
+        "orders": orders
     }
     
     return render(request, "usersApp/profile.html", context=context)

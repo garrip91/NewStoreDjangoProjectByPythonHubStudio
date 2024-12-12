@@ -2,12 +2,14 @@ from django.shortcuts import render, redirect
 from django.db import transaction
 from django.forms import ValidationError
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from .forms import CreateOrderForm
 from cartsApp.models import Cart
 from .models import Order, OrderItem
 
 
+@login_required
 def create_order(request):
     
     if request.method == "POST":
@@ -66,6 +68,7 @@ def create_order(request):
     context = {
         "title": "Home - Оформление заказа",
         "form": form,
+        "order": True,
     }
     
     return render(request, "ordersApp/create_order.html", context=context)
