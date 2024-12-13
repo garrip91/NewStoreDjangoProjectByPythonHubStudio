@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.views import LoginView
 from django.contrib import auth, messages
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
 
@@ -10,38 +11,56 @@ from cartsApp.models import Cart
 from ordersApp.models import Order, OrderItem
 
 
-def login(request):
+# def login(request):
     
-    if request.method == "POST":
-        form = UserLoginForm(data=request.POST)
-        if form.is_valid():
-            username = request.POST["username"]
-            password = request.POST["password"]
-            user = auth.authenticate(username=username, password=password)
+    # if request.method == "POST":
+        # form = UserLoginForm(data=request.POST)
+        # if form.is_valid():
+            # username = request.POST["username"]
+            # password = request.POST["password"]
+            # user = auth.authenticate(username=username, password=password)
             
-            session_key = request.session.session_key
+            # session_key = request.session.session_key
             
-            if user:
-                auth.login(request, user)
-                messages.success(request, f"{username}, Вы вошли в свой аккаунт!")
+            # if user:
+                # auth.login(request, user)
+                # messages.success(request, f"{username}, Вы вошли в свой аккаунт!")
                 
-                if session_key:
-                    Cart.objects.filter(session_key=session_key).update(user=user)
+                # if session_key:
+                    # Cart.objects.filter(session_key=session_key).update(user=user)
                 
-                redirect_page = request.POST.get("next", None)
-                if redirect_page and redirect_page != reverse("usersApp:logout"):
-                    return HttpResponseRedirect(request.POST.get("next"))
+                # redirect_page = request.POST.get("next", None)
+                # if redirect_page and redirect_page != reverse("usersApp:logout"):
+                    # return HttpResponseRedirect(request.POST.get("next"))
                 
-                return HttpResponseRedirect(reverse("mainApp:index"))
-    else:
-        form = UserLoginForm()
+                # return HttpResponseRedirect(reverse("mainApp:index"))
+    # else:
+        # form = UserLoginForm()
     
-    context = {
-        "title": "Home - Авторизация",
-        "form": form,
-    }
+    # context = {
+        # "title": "Home - Авторизация",
+        # "form": form,
+    # }
     
-    return render(request, "usersApp/login.html", context=context)
+    # return render(request, "usersApp/login.html", context=context)
+
+
+class UserLoginView(LoginView):
+    
+    template_name = "usersApp/login.html"
+    form_class = UserLoginForm
+    # success_url = reverse_lazy("mainApp:index")
+    
+    def get_success_url(self):
+        redirect_page = self.request.POST.get("next", None)
+        if redirect_page and redirect_page != reverse("user:logout"):
+            return redirect_page
+        return reverse_lazy("mainApp:index")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Home - Авторизация"
+        return context
 
 
 def registration(request):
