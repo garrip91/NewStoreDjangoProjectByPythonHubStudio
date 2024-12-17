@@ -5,44 +5,12 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
+from django.views.generic import CreateView, UpdateView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import UserLoginForm, UserRegistrationForm, ProfileForm
 from cartsApp.models import Cart
 from ordersApp.models import Order, OrderItem
-
-
-# def login(request):
-    
-    # if request.method == "POST":
-        # form = UserLoginForm(data=request.POST)
-        # if form.is_valid():
-            # username = request.POST["username"]
-            # password = request.POST["password"]
-            # user = auth.authenticate(username=username, password=password)
-            
-            # session_key = request.session.session_key
-            
-            # if user:
-                # auth.login(request, user)
-                # messages.success(request, f"{username}, Вы вошли в свой аккаунт!")
-                
-                # if session_key:
-                    # Cart.objects.filter(session_key=session_key).update(user=user)
-                
-                # redirect_page = request.POST.get("next", None)
-                # if redirect_page and redirect_page != reverse("usersApp:logout"):
-                    # return HttpResponseRedirect(request.POST.get("next"))
-                
-                # return HttpResponseRedirect(reverse("mainApp:index"))
-    # else:
-        # form = UserLoginForm()
-    
-    # context = {
-        # "title": "Home - Авторизация",
-        # "form": form,
-    # }
-    
-    # return render(request, "usersApp/login.html", context=context)
 
 
 class UserLoginView(LoginView):
@@ -57,74 +25,91 @@ class UserLoginView(LoginView):
             return redirect_page
         return reverse_lazy("mainApp:index")
     
+    def form_valid(self, form):
+        session_key = self.request.session.session_key
+        
+        user = form.get_user()
+        
+        if user:
+            auth.login(self.request, user)
+            if session_key:
+                # delete old authorized user carts:
+                forgot_carts = Cart.objects.filter(user=user)
+                if forgot_carts.exists():
+                    forgot_carts.delete()
+                # add new authorized user carts from anonimous session:
+                Cart.objects.filter(session_key=session_key).update(user=user)
+                
+                messages.success(self.request, f"{user.username}, Вы вошли в аккаунт!")
+        
+                return HttpResponseRedirect(self.get_success_url())
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Home - Авторизация"
         return context
 
 
-def registration(request):
+class UserRegistrationView(CreateView):
+    template_name = "usersApp/registration.html"
+    form_class = UserRegistrationForm
+    success_url = reverse_lazy("usersApp:profile")
     
-    if request.method == "POST":
-        form = UserRegistrationForm(data=request.POST)
-        if form.is_valid():
+    def form_valid(self, form):
+        session_key = self.request.session.session_key
+        user = form.instance
+        
+        if user:
             form.save()
+            auth.login(self.request, user)
             
-            session_key = request.session.session_key
+        if session_key:
+            Cart.objects.filter(session_key=session_key).update(user=user)
             
-            user = form.instance
-            auth.login(request, user)
-            
-            if session_key:
-                Cart.objects.filter(session_key=session_key).update(user=user)
-            
-            messages.success(request, f"{user.username}, Вы зарегистрированы и вошли в свой аккаунт!")
-            return HttpResponseRedirect(reverse("mainApp:index"))
-    else:
-        form = UserRegistrationForm()
+        messages.success(self.request, f"{user.username}, Вы успешно зарегистрированы и вошли в свой аккаунт!")
+        return HttpResponseRedirect(self.success_url)
     
-    context = {
-        "title": "Home - Регистрация",
-        "form": form,
-    }
-    
-    return render(request, "usersApp/registration.html", context=context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Home - Регистрация"
+        return context
 
 
-@login_required
-def profile(request):
+class UserProfileView(LoginRequiredMixin, UpdateView):
+    template_name = "usersApp/profile.html"
+    form_class = ProfileForm
+    success_url = reverse_lazy("usersApp:profile")
     
-    if request.method == "POST":
-        form = ProfileForm(data=request.POST, instance=request.user, files=request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f"{username}, Профиль Вашего аккаунта успешно обновлён!")
-            return HttpResponseRedirect(reverse("user:profile"))
-    else:
-        form = ProfileForm(instance=request.user)
+    def get_object(self, queryset=None):
+        return self.request.user
     
-    orders = (
-        Order.objects.filter(user=request.user).prefetch_related(
+    def form_valid(self, form):
+        messages.success(self.request, "Ваш профиль успешно обновлён!")
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, "Прозошла ошибка!")
+        return super().form_invalid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Home - Кабинет"
+        context["orders"] = Order.objects.filter(user=self.request.user).prefetch_related(
             Prefetch(
                 "orderitem_set",
                 queryset=OrderItem.objects.select_related("product"),
             )
-        )
-        .order_by("-id")
-    )
-    
-    context = {
-        "title": "Home - Кабинет",
-        "form": form,
-        "orders": orders
-    }
-    
-    return render(request, "usersApp/profile.html", context=context)
+        ).order_by("-id")
+        return context
 
 
-def users_cart(request):
+class UserCartView(TemplateView):
+    template_name = "usersApp/users_cart.html"
     
-    return render(request, "usersApp/users_cart.html")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Home - Корзина"
+        return context
 
 
 @login_required
